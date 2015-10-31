@@ -1,0 +1,23 @@
+1
+999999 /img/stage/test/test1.tga
+2
+1 /img/enemy/stagetest/f1g.tga 1 /img/enemy/stagetest/f1u.tga 1 /img/enemy/stagetest/f1d.tga 1 /img/enemy/stagetest/f1l.tga
+1 /img/enemy/stagetest/ f1r.tga 1 /img/enemy/stagetest/f1de.tga
+1 /img/enemy/stagetest/f2g.tga 1 /img/enemy/stagetest/f2u.tga 1 /img/enemy/stagetest/f2d.tga 1 /img/enemy/stagetest/f2l.tga
+1 /img/enemy/stagetest/ f2r.tga 1 /img/enemy/stagetest/f2de.tga
+2
+1 /img/enemyammo/stagetest/sag.tga 1 /img/enemyammo/stagetest/sa.tga 1 /img/enemyammo/stagetest/sa.tga
+1 /img/enemyammo/stagetest/sa.tga 1 /img/enemyammo/stagetest/sa.tga 1 /img/enemyammo/stagetest/sad.tga
+1 /img/enemyammo/stagetest/lag.tga 1 /img/enemyammo/stagetest/la.tga 1 /img/enemyammo/stagetest/la.tga
+1 /img/enemyammo/stagetest/la.tga 1 /img/enemyammo/stagetest/la.tga 1 /img/enemyammo/stagetest/lad.tga
+10
+36 36 36 1 1 50 350
+36 36 36 2 1 60 360
+36 36 36 3 1 70 370
+45 45 45 4 1 80 380
+36 36 36 0 1 90 390
+36 36 36 1 2 150 350
+36 36 36 2 2 140 360
+67 67 67 3 2 130 370
+36 36 36 4 2 120 380
+36 36 36 0 2 110 390

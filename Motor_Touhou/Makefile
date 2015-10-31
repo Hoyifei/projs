@@ -12,3 +12,4 @@ GameBoard.o: ScreenItem.h ScreenItem.o defines.h
 
 clean:
 	rm *.o
+	rm motor

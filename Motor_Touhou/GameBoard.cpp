@@ -718,7 +718,7 @@ void TGameBoard::LoadStage(){
         nowEnemy->right[0]->hhei=nowEnemy->right[1]->hhei=ehh;
         nowEnemy->death[0]->hhei=nowEnemy->death[1]->hhei=ehh;
     }
-    nowEnemy->next=0;
+    if(nowEnemy) nowEnemy->next=0;
     fclose(stdin);
     bStat=LoadFinish;
 }

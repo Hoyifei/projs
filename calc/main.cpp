@@ -1,46 +1,8 @@
 #include <cstdio>
 #include <cmath>
 #include <complex>
-#define PiE 3.141592653589793239463
+#define PiE 3.1415926535897932384626433832795L
 using namespace std;
-/*
- * -i :Unsigned Integer only mode.Input should only contain integer numbers,Bin/Oct/Dec/Hex numbers can be mixed.
- *  B100010:binary int 100010;O72510:Oct int 72510;D12345 or 12345:Demical int 12345;HA3FF2:Hex int A3FF2
- * -O X or -o X:Output control.X could be B/O/D/H.Auto regard as Integer-only mode.
- * -r <path>:read input from file
- * -w <path>:write output to file
- * normal:use double as result;% wil be regard as percent
- * -b: Integer only.^ & | is availiable
- * -h:Show help.
- * -----------------------------------------------------------------------------------------------------------
- * Operators:
- * '+':normal mode could be used as sign
- * '-':normal mode could be used as sign
- * '*'
- * '/'
- * '^':If -bit is enabled,it will be regard as xor operation.Or will be regard as power operation
- * '&':-bit mode only.Operator and;
- * '|':-bit mode only.Operator or;
- * '!':-bit mode ony.Operator not
- * '<':-bit mode only,left shift
- * '>':-bit mode only,right shift
- * '|xxx|':normal mode.Absolute value;
- * '%':-int mode:Operator mod.normal mode:percent
- * '$funcname(':call functions such as sin,cos.e.g.$sin(3.14)
- * '()'
- * '[]':floor,normal only
- * '{}':ceil,normal only
- * '<>':round,normal only
- * ---------------------------------------------------------------------------------------------------------
- *  sin|cos|tan|cot|sec|csc|asin|acos|atan|sinh|cosh|tanh|
- *  sqrt|ln|lg
- *  pi is a function:$pi(),expression will be ignored.
- *  ---fuctions not availiable in int-only mode---
- *  last:the last answer.will be cleared as 0 after error or mode changing
- * ---------------------------------------------------------------------------------------------------------
- *  assume that modes will be put in the front and be read from left to right.
- *  uncompatible mods will cause program to exit
- * */
 template <typename TY>
 struct TSmallStack{
     TY content[100000];
@@ -87,7 +49,6 @@ char* getint(unsigned long long *tar,char* sou){
         case 'h':case 'H':bas=16;++now;break;
     } 
     while(1){
- //       printf("now=%c\n",*now);
         switch(*now){
             case '0'...'9':(*tar)=(*tar)*bas+(*now)-'0';break;
             case 'a'...'f':(*tar)=(*tar)*bas+(*now)-'a'+10;break;
@@ -100,7 +61,6 @@ char* getint(unsigned long long *tar,char* sou){
 char* getfloat(long double *tar,char* sou){
     int ex=0,fuck=0,step=1;bool fu=0,ck=0;char* now=sou;*tar=0;
     long double base=10;
-    int deb;
     switch(*now){
         case '-':fu=1;++now;break;
         case 'b':case 'B':base=2;++now;break;
@@ -116,26 +76,19 @@ char* getfloat(long double *tar,char* sou){
         case 'h':case 'H':base=16;++now;break;
     }
     while(step==1){
-        //printf("2now=%c\n",*now);
-        //printf("step=%d (step==1)=%d\n",step,step==1);
-        //scanf("%d",&deb);
-        //printf("now=='.'=%d\n",(*now)=='.');
         switch(*now){
             case '0'...'9':*tar=*tar*base+(*now)-'0';++now;break;
             case 'A'...'F':*tar=*tar*base+(*now)-'A'+10;++now;break;
             case 'a'...'f':*tar=*tar*base+(*now)-'a'+10;++now;break;
             case 'p':case 'P':step=3;++now;break;
             case '.':
-                //printf("xxx");
                 step=2;
                 ++now;
-                //printf("saatep=%d\n",step);
                 break;
             default:step=4;break;
         }
     }
     while(step==2){
-      //  printf("3now=%c\n",*now);
         switch(*now){
             case 'p':case 'P':step=3;++now;break;
             case '0'...'9':*tar=*tar*base+(*now)-'0';++now;--ex;break;
@@ -145,7 +98,6 @@ char* getfloat(long double *tar,char* sou){
         }
     }
     while(step==3){
-     //   printf("4now=%c\n",*now);
         switch(*now){
             case '0'...'9':fuck=fuck*base+(*now)-'0';++now;break;
             case 'a'...'h':fuck=fuck*base+(*now)-'a'+10;++now;break;
@@ -161,12 +113,6 @@ char* getfloat(long double *tar,char* sou){
     return(now);
 }
 int status;
-/*1:int mode
- *2:complex enable
- *4:Bin output
- *8:Oct output
- *16:Hex output
-*/
 void cal_i(){
         unsigned long long a,b;int op;
         a=s_int.pop();op=s_op.pop();
@@ -237,14 +183,14 @@ void cal_n(){
                 s_nrm.push(a*b);
             break;
             case 4://'/'
-                if(abs(a)<1e-290){printf("FuckYou1");s_nrm.push(b);erro=1;}else s_nrm.push(b/a);
+                if(abs(a)<1e-290){printf("FuckYou");s_nrm.push(b);erro=1;}else s_nrm.push(b/a);
             break;
             case 10://'^'
-                if(b<0||(abs(a)<1e-290&&abs(b)<1e-290)){printf("FuckYou2\n");erro=1;s_nrm.push(a);}
+                if(b<0||(abs(a)<1e-290&&abs(b)<1e-290)){printf("FuckYou");erro=1;s_nrm.push(a);}
                 else s_nrm.push(pow(b,a));
             break;
             default:
-                printf("FuckYou3");erro=1;s_nrm.push(a);
+                printf("FuckYou");erro=1;s_nrm.push(a);
                 break;
         }
 }
@@ -260,15 +206,13 @@ char* getword(int* tar,char* ori){
 int main(int argc,char** argv){
     int argp=1;
     char ch,*now;
-    bool nn,rr,stay=0;
+    bool nn,rr,stay=1;
     totfunc=128;totnode=0;op=&tpool[0];for(int i=0;i<26;++i) op->chi[i]=op;
     insword("last");insword("sin");insword("cos");insword("tan");
     insword("sec");insword("csc");insword("asin");
     insword("acos");insword("atan");insword("sinh");insword("cosh");
     insword("tanh");insword("sqrt");insword("ln");insword("lg");insword("pi");insword("e");
-    //......
     s_int.content[0]=0;s_nrm.content[0]=0;s_int.top=0;s_nrm.top=0;s_op.top=0;
-    if(argc==1) stay=1;
     for(;argp<argc;){
         if(argv[argp][0]=='/'){
             switch(argv[argp][1]){
@@ -302,6 +246,7 @@ int main(int argc,char** argv){
         }else break;
     }
     if(argp<argc){
+        stay=0;
         nn=0;erro=0;
         if(status&1){
             unsigned long long tmp;
@@ -421,7 +366,6 @@ int main(int argc,char** argv){
                            int fn=s_op.pop();
                             switch(fn){
                                 case 12:break;
-                                case 129:if(!s_int.empty())s_int.pop();s_int.push(s_int.content[0]);break;
                                 default://report error
                                     printf("WHAT THE HELL IS THIS");
                                     erro=1;
@@ -429,10 +373,11 @@ int main(int argc,char** argv){
                             }
                         }
                     break;
-                    case '$':
-                        int fn;
-                        now=getword(&fn,now+1)+1;
-                        s_op.push(fn);
+                    case 'a':case 'c':case 'e':case 'l':case 'p':case 't':case 's':
+                    case 'A':case 'C':case 'E':case 'L':case 'P':case 'T':case 'S':
+                      int fn;
+                        now=getword(&fn,now);
+                        if(fn==129) s_int.push(s_int.content[0]);else{s_op.push(fn);++now;}
                     break;
                     default:++now;break;
                 }
@@ -516,7 +461,7 @@ int main(int argc,char** argv){
                     break;
                     case '^':
                         ++now;
-                        s_op.push(10);rr=0;break;
+                        s_op.push(10);nn=0;break;
                     break;
                     case '<':case '{':case '[':case '(':
                         nn=0;++now;s_op.push(12);
@@ -532,7 +477,6 @@ int main(int argc,char** argv){
                             long double aaa;
                             switch(fn){
                                 case 12:break;
-                                case 129:if(!s_nrm.empty())s_nrm.pop();s_nrm.push(s_nrm.content[0]);break;
                                 case 130:s_nrm.push(sin(s_nrm.pop()));break;
                                 case 131:s_nrm.push(cos(s_nrm.pop()));break;
                                 case 132:
@@ -565,8 +509,6 @@ int main(int argc,char** argv){
                                 case 143:
                                          aaa=s_nrm.pop();
                                          if(aaa<1e-30){printf("FuckYou");erro=1;s_nrm.push(aaa);}else s_nrm.push(log10(aaa));break;
-                                case 144:if(!s_nrm.empty())s_nrm.pop();s_nrm.push(PiE);
-                                case 145:if(!s_nrm.empty())s_nrm.pop();s_nrm.push(exp(1));
                                 default://report error
                                     printf("WHAT THE HELL IS THIS");
                                     erro=1;
@@ -642,10 +584,17 @@ int main(int argc,char** argv){
                             }
                         }
                     break;
-                    case '$':
+                    case 'a':case 'c':case 'e':case 'l':case 'p':case 't':case 's':
+                    case 'A':case 'C':case 'E':case 'L':case 'P':case 'T':case 'S':
                         int fn;
-                        now=getword(&fn,now+1)+1;
-                        s_op.push(fn);
+                        now=getword(&fn,now);
+                        nn=1;
+                        switch(fn){
+                            case 129:s_nrm.push(s_nrm.content[0]);break;
+                            case 144:s_nrm.push(PiE);break;
+                            case 145:s_nrm.push(exp(1));break;
+                            default:s_op.push(fn);++now;nn=0;break;
+                        }
                     break;
                     default:++now;break;
                 }
@@ -663,7 +612,7 @@ int main(int argc,char** argv){
                 s_nrm.content[0]=0;
             }else{
                 s_nrm.content[0]=ans;
-                printf("%.20e\n",(double)ans);
+                printf("%Lf\n",ans);
             }
          }
     }
@@ -815,7 +764,6 @@ int main(int argc,char** argv){
                             int fn=s_op.pop();
                             switch(fn){
                                 case 12:break;
-                                case 129:if(!s_int.empty())s_int.pop();s_int.push(s_int.content[0]);break;
                                 default://report error
                                     printf("WHAT THE HELL IS THIS");
                                     erro=1;
@@ -823,10 +771,11 @@ int main(int argc,char** argv){
                             }
                         }
                     break;
-                    case '$':
+                    case 'a':case 'c':case 'e':case 'l':case 'p':case 't':case 's':
+                    case 'A':case 'C':case 'E':case 'L':case 'P':case 'T':case 'S':
                         int fn;
-                        now=getword(&fn,now+1)+1;
-                        s_op.push(fn);
+                        now=getword(&fn,now);
+                        if(fn==129) s_int.push(s_int.content[0]);else{s_op.push(fn);++now;}
                     break;
                     default:++now;break;
                 }
@@ -926,7 +875,6 @@ int main(int argc,char** argv){
                             long double aaa;
                             switch(fn){
                                 case 12:break;
-                                case 129:if(!s_nrm.empty()) s_nrm.pop();s_nrm.push(s_nrm.content[0]);break;
                                 case 130:s_nrm.push(sin(s_nrm.pop()));break;
                                 case 131:s_nrm.push(cos(s_nrm.pop()));break;
                                 case 132:
@@ -959,8 +907,6 @@ int main(int argc,char** argv){
                                 case 143:
                                          aaa=s_nrm.pop();
                                          if(aaa<1e-30){printf("FuckYou");erro=1;s_nrm.push(aaa);}else s_nrm.push(log10(aaa));break;
-                                case 144:if(!s_nrm.empty())s_nrm.pop();s_nrm.push(PiE);
-                                case 145:if(!s_nrm.empty())s_nrm.pop();s_nrm.push(exp(1));
                                 default://report error
                                     printf("WHAT THE HELL IS THIS");
                                     erro=1;
@@ -1036,10 +982,17 @@ int main(int argc,char** argv){
                             }
                         }
                     break;
-                    case '$':
+                    case 'a':case 'c':case 'e':case 'l':case 'p':case 't':case 's':
+                    case 'A':case 'C':case 'E':case 'L':case 'P':case 'T':case 'S':
                         int fn;
-                        now=getword(&fn,now+1)+1;
-                        s_op.push(fn);
+                        now=getword(&fn,now);
+                        nn=1;
+                        switch(fn){
+                            case 129:s_nrm.push(s_nrm.content[0]);break;
+                            case 144:s_nrm.push(PiE);break;
+                            case 145:s_nrm.push(exp(1));break;
+                            default:s_op.push(fn);++now;nn=0;break;
+                        }
                     break;
                     default:++now;break;
                 }
@@ -1057,8 +1010,7 @@ int main(int argc,char** argv){
                 erro=0;
             }else{
                 s_nrm.content[0]=ans;
-                //printf("%.17f\n",ans);
-                printf("%.20e\n",(double)ans);
+                printf("%Lf\n",ans);
             }
          }
         }

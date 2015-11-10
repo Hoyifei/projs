@@ -238,8 +238,9 @@ int main(int argc,char** argv){
                 break;
                 case '?':case 'h':case 'H':
                     freopen("help.txt","r",stdin);
+                    ch='`';
                     ch=getchar();
-                    while(ch!='~'){printf("%c",ch);ch=getchar();}
+                    while(ch>0&&ch!='`'){printf("%c",ch);ch='`';ch=getchar();}
                     return(0);
                 default:++argp;break;
             }

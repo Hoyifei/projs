@@ -1,0 +1,53 @@
+Calculator Help
+1.Command line&Normal use
+  When start the calculator with no expression argument,the calculator will
+wait for your input.you can type expressions to calculate or arguments to
+change the calculator's mode.Type 'q','quit'(or other words begin with q)to
+quit the calculator.
+  When start the calculator with an expression in the arguments,the calculator
+will IGNORE the arguments behind the expression,calculate the
+result,and,unless with a '/s' argument,exit.For example:
+'./calc /i 123+45 /ob'
+The calculator will calculate the expression '123+45' show the result and
+quit.Argument '/ob' is ignored but '/i' is not.
+'./calc /s 123+45'
+The calculator will calculate the expression and wait for your input.
+2.Integer mode
+  When using '/i' argument,calculator will enter Integer Mode.Under Integer
+Mode,you can use '+','-','*' as multiply sign,'/' as division sign,'%' to
+calculate the reminder,'<' to left shift,'>' to right shift,and binary signs
+like '&','|','^','!'.you can use constant 'last' to represent the last result.but
+functions like 'sin','cos' is ,of course,not allowed.
+  You can use 2,8,10 and 16 based integer at the same time.However,you should
+type a letter at the beginning of the integer to specific the base.'B11001'
+means 2-based integer 11001,'o76543' means 8-based ineger 76543,'D99999'or
+'99999' means 10-based integer 99999 and 'HA44' means 16-based integer A44.
+  You can also make the calculator to use other based integer to sow the
+result.Just type these arguments:'/ob' '/oo' '/od' or '/oh'.
+3.Normal mode
+  When using '/f' argument or no argument,calculator will enter Normal
+mode.Under Normal mode you can use '+','-','*','/','^' as power sign,'%' as
+percent sign.You can use '[xxx]' as floor sign,'{xxx}' as ceil sign,'<xxx>' as
+round sign,'|xxx|' as absolute value sign;constant including
+'last','pi','e';functions including sin(),cos(),tan(),asin(),acos(),atan(),
+sec(),csc(),sinh(),cosh(),tanh(),sqrt(),ln(),lg().
+  You can input numbers in scientific style,like 3.14P2 means 3.14*10^2.You
+can also use 2,8,10 or 16 based numbers,just type the same letter as
+multibased integers.But there're 2 things to be careful:   1.   The base of one
+number should be the same.For example,B1.001101P1110 is a correct number.   2.
+The output can only be Demical numbers.
+4.File I/O
+  You can use a '/r xxxxxxx' argument to let the calculator to read commands from a
+file.There could be both expressions and arguments in the input file.Use '/w
+xxxx'to output the result into a file.'/w' command will automatically
+overwrite the origin file.SO BE CAREFUL!
+5.Others
+  Wrong Expressions or Math Errors will cause the calculator to Fuck you.But
+if a correct expression is fucked,please contact me.
+  Both CAPITAL LETTERS and non-capital letters are aceptable,unless in the
+filename.
+  In integer mode, The Integer will be regard as 64-bit unsigned integers,and '-' is
+not allowed as a negative sign.In any mode,'+' is not allowed to be used as a
+positive sign.
+  One expression should be no longer than 100000 chars.
+  Arguments must begin with '/',for '-' might means negative sign.

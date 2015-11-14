@@ -11,6 +11,8 @@ public:
     Game content;
     STList *global;
 //---------------------------------------------------------------
+	 Game_iterator();
+	 ~Game_iterator();
     Game_iterator* Next();
     Game_iterator* Prev();
     Game_iterator* Next_company();

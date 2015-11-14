@@ -11,8 +11,10 @@ public:
     Company content;
     STList *global;
 //--------------------------------------------------
-    Game_iterator* gFirst();
-    Game_iterator* gLast();
+	 Company_iterator();
+	 ~Company_iterator();
+    Game_iterator* GameFirst();
+    Game_iterator* GameLast();
     Company_iterator* Next();
     Company_iterator* Prev();
     bool isLast();

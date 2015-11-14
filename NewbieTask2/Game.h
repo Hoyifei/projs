@@ -3,7 +3,7 @@
 #include "Achievements.h"
 struct Game{
     char Name[50],Description[1000];
-    int Hours,TotalAchieves,AchievedAchieves;
+    int Hours,TotalAchieve,MyAchieve;
     Achieve *Head;
 };
 #endif // NTASK2_GAME

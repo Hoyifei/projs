@@ -2,6 +2,6 @@
 #define NTASK2_COMPANY
 struct Company{
     char Name[50],Description[1000];
-    int totalGame,matchedGame;
+    int TotalGame,MatchedGame;
 };
 #endif // NTASK2_COMPANY

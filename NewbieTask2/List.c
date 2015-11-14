@@ -4,6 +4,18 @@
 #include "Company.h"
 #include "Company_iterator.h"
 #include <stdlib.h>
+Game_iterator* STList::GameFirst(){
+    return(ghead->next);
+}
+Game_iterator* STList::GameLast(){
+    return(ghead->prev);
+}
+Company_iterator STList::CompanyFirst(){
+    return(chead->next);
+}
+Company_iterator STList::CompanyLast(){
+    return(chead->prev);
+}
 void STList::createachi(int num){
     int n=num;
     Achieve** nachis=(Achieve**)malloc(n*sizeof(Achieve));
@@ -78,6 +90,7 @@ Company_iterator* STList::GetCompIterator(){
     return(ans);
 }
 void STList::delAchieve(Achieve* tar){
+    if(tar==0) return;
     ++caachi;
     tar->next=aachi;
     tar->prev=aachi->prev;
@@ -93,6 +106,7 @@ void STList::delAchieve(Achieve* tar){
     }
 }
 void STList::delGame(Game_iterator* tar){
+    if(tar==0) return;
     delAchieve(tar->content->Head);
     tar->content->Head=0;
     ++cagame;
@@ -110,6 +124,7 @@ void STList::delGame(Game_iterator* tar){
     }
 }
 void STList::delCompany(Company_iterator* tar){
+    if(tar==0) return;
     delGame(tar->head);
     tar->head=0;
     ++cacomp;
@@ -125,6 +140,45 @@ void STList::delCompany(Company_iterator* tar){
         }
         head->next=tail;tail->prev=head;acomp=head;
     }
+}
+Achieve* DelAchieve(Achieve* tar){
+    if(tar==0) return;
+    Achieve *ans=tar->next;
+    tar->next->prev=tar->prev;
+    tar->prev->next=tar->next;
+    delAchieve(tar);
+    return(ans);
+}
+Game_iterator* DelGame(Game_iterator* tar){
+    if(tar==0) return;
+    Game_iterator *ans=tar->cnext;
+    tar->prev->next=tar->next;
+    tar->cnext->cprev=tar->cprev;
+    tar->next->prev=tar->prev;
+    tar->cprev->cnext=tar->cnext;
+    for(Achieve* now=tar->content.Head->next;now!=tar->content.Head;now=DelAchieve(now));
+    delGame(tar);
+    return(ans);
+}
+Company_iterator* DelCompany(Company_iterator* tar){
+    if(tar==0) return;
+    Company_iterator ans=ttar->next;
+    tar->prev->next=tar->next;
+    tar->next->prev=tar->prev;
+    for(Game_iterator* now=tar->head-next;now!=tar->head;now=DelGame(now));
+    delCompany(tar);
+    return(ans);
+}
+STList::STList(){
+    ghead=GetGameIterator();
+    ghead->prev=ghead->next=ghead;
+    chead=GetCompIterator();
+    chead->prev=chead->next=chead;
+}
+STList::~STList(){
+    for(Company_iterator* now=chead->next;now!=chead;now=DelComp(now));
+    DelComp(chead);
+    DelGame(ghead);
 }
 void STList::qsort_game(Game_iterator* l,Game_iterator* r,bool ( * cmp )(Game_iterator* a,Game_iterator* b)){
     Game_iterator *ll=l,*rr=r,*x=l,*gne,*gpr;
@@ -202,6 +256,7 @@ void STList::InsertGame_p(Game_iterator *fr,Game_iterator *tar){
     tar->next->prev=tar->cnext->cprev=tar;
     fr->next=fr->cnext=tar;
     tar->comp=fr->comp;
+    fr->comp->content.TotalGames++;
 }
 void STList::InsertGame_v(Game_iterator *fr,Game content){
     Game_Iterator *tar=GetGameIterator();
@@ -244,4 +299,216 @@ void STList::InsertCompany(Company_iterator* fr,Company content){
     tar->content=content;
     InsertCompany_p(fr,tar);
 }
-
+Game_iterator* STList::FindGame(int flag,Game model,Game_iterator *head){
+    bool got;
+    for(Game_iterator now=head;now!=ghead;now=now->next){
+        switch(flag&GAME_COMPARENAME_COMPLETELYMATCH){
+            case GAME_IGNORENAME:break;
+            case GAME_COMPARENAME:
+                    if(!compstr_WC(now->content.Name,model.Name)) continue;
+                    break;
+            case GAME_COMPARENAME_NOWILDCARD:
+                    if(!compstr(now->content.Name,model.Name)) continue;
+                    break;
+            case GAME_COMPARENAME_COMPLETELYMATCH:
+                    if(strcmp(now->content.Name,model.Name)!=0) continue;
+                    break;
+        }
+        switch(flag&GAME_COMPDESC_COMPLETELYMATCH){
+            case GAME_IGNOREDESC:break;
+            case GAME_COMPAREDESC:
+                    if(!compstr_WC(now->content.Description,model.Description)) continue;
+                    break;
+            case GAME_COMPAREDESC_NOWILDCARD:
+                    if(!compstr(now->content.Description,model.Description)) continue;
+                    break;
+            case GAME_COMPAREDESC_COMPLETELYMATCH:
+                    if(strcmp(now->content.Description,model.Description)!=0) continue;
+                    break;            
+        }
+        switch(flag&GAME_HOUR_EQUAL){
+            case GAME_IGNOREHOUR:break;
+            case GAME_HOUR_MORE:
+                if(now->content.Hours<model.Hours) continue;
+                break;
+            case GAME_HOUR_LESS:
+                if(now->content.Hours>model.Hours) continue;
+                break;
+            case GAME_HOUR_EQUAL:
+                if(now->content.Hours!=model.Hours) continue;
+                break;
+        }
+        switch(flag&GAME_TOTACHIEVE_EQUAL){
+            case GAME_IGNORETOTACHIEVE:break;
+            case GAME_TOTACHIEVE_MORE:
+                if(now->content.TotAchieve<model.TotAchieve) continue;
+                break;
+            case GAME_TOTACHIEVE_LESS:
+                if(now->content.TotAchieve>model.TotAchieve) continue;
+                break;
+            case GAME_TOTACHIEVE_EQUAL:
+                if(now->content.TotAchieve!=model.TotAchieve) continue;
+                break;
+        }
+        switch(flag&GAME_MYACHIEVE_EQUAL){
+            case GAME_IGNOREMYACHIEVE:break;
+            case GAME_MYACHIEVE_MORE:
+                if(now->content.MyAchieve<model.MyAchieve) continue;
+                break;
+            case GAME_MYACHIEVE_LESS:
+                if(now->content.MyAchieve>model.MyAchieve) continue;
+                break;
+            case GAME_MYACHIEVE_EQUAL:
+                if(now->content.MyAchieve!=model.MyAchieve) continue;
+                break;
+        }
+        return(now);
+    }
+    return(0);
+}
+Game_iterator* STList::FindGame_c(int flag,Game model,Game_iterator *head){
+    bool got;
+    Game_iterator *he=head->comp;
+    for(Game_iterator now=head;now!=he;now=now->cnext){
+        switch(flag&GAME_COMPARENAME_COMPLETELYMATCH){
+            case GAME_IGNORENAME:break;
+            case GAME_COMPARENAME:
+                    if(!compstr_WC(now->content.Name,model.Name)) continue;
+                    break;
+            case GAME_COMPARENAME_NOWILDCARD:
+                    if(!compstr(now->content.Name,model.Name)) continue;
+                    break;
+            case GAME_COMPARENAME_COMPLETELYMATCH:
+                    if(strcmp(now->content.Name,model.Name)!=0) continue;
+                    break;
+        }
+        switch(flag&GAME_COMPDESC_COMPLETELYMATCH){
+            case GAME_IGNOREDESC:break;
+            case GAME_COMPAREDESC:
+                    if(!compstr_WC(now->content.Description,model.Description)) continue;
+                    break;
+            case GAME_COMPAREDESC_NOWILDCARD:
+                    if(!compstr(now->content.Description,model.Description)) continue;
+                    break;
+            case GAME_COMPAREDESC_COMPLETELYMATCH:
+                    if(strcmp(now->content.Description,model.Description)!=0) continue;
+                    break;            
+        }
+        switch(flag&GAME_HOUR_EQUAL){
+            case GAME_IGNOREHOUR:break;
+            case GAME_HOUR_MORE:
+                if(now->content.Hours<model.Hours) continue;
+                break;
+            case GAME_HOUR_LESS:
+                if(now->content.Hours>model.Hours) continue;
+                break;
+            case GAME_HOUR_EQUAL:
+                if(now->content.Hours!=model.Hours) continue;
+                break;
+        }
+        switch(flag&GAME_TOTACHIEVE_EQUAL){
+            case GAME_IGNORETOTACHIEVE:break;
+            case GAME_TOTACHIEVE_MORE:
+                if(now->content.TotAchieve<model.TotAchieve) continue;
+                break;
+            case GAME_TOTACHIEVE_LESS:
+                if(now->content.TotAchieve>model.TotAchieve) continue;
+                break;
+            case GAME_TOTACHIEVE_EQUAL:
+                if(now->content.TotAchieve!=model.TotAchieve) continue;
+                break;
+        }
+        switch(flag&GAME_MYACHIEVE_EQUAL){
+            case GAME_IGNOREMYACHIEVE:break;
+            case GAME_MYACHIEVE_MORE:
+                if(now->content.MyAchieve<model.MyAchieve) continue;
+                break;
+            case GAME_MYACHIEVE_LESS:
+                if(now->content.MyAchieve>model.MyAchieve) continue;
+                break;
+            case GAME_MYACHIEVE_EQUAL:
+                if(now->content.MyAchieve!=model.MyAchieve) continue;
+                break;
+        }
+        return(now);
+    }
+    return(0);
+}
+int CountGame(int flag,Game model){
+    Game_iterator* now=ghead->next;
+    int ans=0;
+    while(now){
+        now=FindGame(flag,model,now);
+        if(now) ++ans;
+    }
+    return(ans);
+}
+int CountGame_c(int flag,Game model,Company_iterator* comp){
+    Game_iterator* now=comp->GameFirst();
+    int ans=0;
+    while(now){
+        now=FindGame_c(flag,model,now);
+        if(now) ++ans;
+    }
+    return(ans);
+}
+void CoutGame_e(int flag,Game model){
+    for(Company_iterator* now=chead->next;now!=chead;now=now->next){
+        now->Content.MatchedGame=CountGame_c(flag,model,now);
+    }
+}
+Company_iterator* STList::FindCompany(int flag,Company model,Company_iterator *head){
+    bool got;
+    for(Company_iterator now=head;now!=chead;now=now->next){
+        switch(flag&COMP_COMPARENAME_COMPLETELYMATCH){
+            case COMP_IGNORENAME:break;
+            case COMP_COMPARENAME:
+                    if(!compstr_WC(now->content.Name,model.Name)) continue;
+                    break;
+            case COMP_COMPARENAME_NOWILDCARD:
+                    if(!compstr(now->content.Name,model.Name)) continue;
+                    break;
+            case COMP_COMPARENAME_COMPLETELYMATCH:
+                    if(strcmp(now->content.Name,model.Name)!=0) continue;
+                    break;
+        }
+        switch(flag&COMP_COMPDESC_COMPLETELYMATCH){
+            case COMP_IGNOREDESC:break;
+            case COMP_COMPAREDESC:
+                    if(!compstr_WC(now->content.Description,model.Description)) continue;
+                    break;
+            case COMP_COMPAREDESC_NOWILDCARD:
+                    if(!compstr(now->content.Description,model.Description)) continue;
+                    break;
+            case COMP_COMPAREDESC_COMPLETELYMATCH:
+                    if(strcmp(now->content.Description,model.Description)!=0) continue;
+                    break;            
+        }
+        switch(flag&COMP_TOTGAME_EQUAL){
+            case COMP_IGNORETOTGAME:break;
+            case COMP_TOTGAME_MORE:
+                if(now->content.TotalGame<model.TotalGame) continue;
+                break;
+            case COMP_TOTGAME_LESS:
+                if(now->content.TotalGame>model.TotalGame) continue;
+                break;
+            case COMP_TOTGAME_EQUAL:
+                if(now->content.TotalGame!=model.TotalGame) continue;
+                break;
+        }
+        switch(flag&COMP_MACHEDGAME_EQUAL){
+            case COMP_IGNOREMATCHEDGAME:break;
+            case COMP_MATCHEDGAME_MORE:
+                if(now->content.MatchedGame<model.MatchedGame) continue;
+                break;
+            case COMP_MATCHEDGAME_LESS:
+                if(now->content.MatchedGame>model.MatchedGame) continue;
+                break;
+            case COMP_MATCHEDGAME_EQUAL:
+                if(now->content.MatchedGame!=model.MatchedGame) continue;
+                break;
+        }
+        return(now);
+    }
+    return(0);
+}

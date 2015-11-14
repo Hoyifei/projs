@@ -8,6 +8,8 @@ struct Game;
 struct Achieve;
 class STList{
 public:
+	 STList();
+	 ~STList();
     Achieve *aachi;
     Company_iterator *acomp,*chead;
     Game_iterator *agame,*ghead;
@@ -21,9 +23,12 @@ public:
     Achieve* GetAchieve();
     Company_iterator* GetCompIterator();
     Game_iterator* GetGameIterator();
-    void DelAchieve(Achieve* tar);
-    void DelCompany(Company_iterator* tar);
-    void DelGame(Game_iterator* tar);
+	 void delAchieve(Achieve* tar);
+    Achieve* DelAchieve(Achieve* tar);
+	 void delCompany(Achieve* tar);
+    Company_iterator* DelCompany(Company_iterator* tar);
+	 void delGame(Game_iterator* tar);
+    Game_iterator* DelGame(Game_iterator* tar);
 //--------------------------------------------------------------------------
     Game_iterator* GameFirst();
     Game_iterator* GameLast();
@@ -48,7 +53,7 @@ public:
     //matched by the condition that is given by flag and model.
     //flag=binary(aabbccddee)
     //aa=00:do not compare name|01:compare name.|
-    //02:compare name without wild-card|03:compare name without wild-card,success only absolutely match
+    //02:compare name without wild-card|03:compare name without wild-card,success only completely match
     //bb=00:do not compare description|01|02|03
     //cc:00:ignore played hours|01:played hours more than model(including)|02:less than|03:equal to
     //dd:00:ignore total achievement counts|01|02|03
@@ -56,7 +61,7 @@ public:
     Game_iterator* FindGame_c(int flag,Game model,Game_iterator* head);
     //find game in the same company of head
     int CountGame(int flag,Game model);
-    int CountGame_c(int flag,Game model,Company_iterator comp);
+    int CountGame_c(int flag,Game model,Company_iterator* comp);
     void CountGame_e(int flag,Game model);
     //count games matches the condition
     //only count games in the same company if use Count_c

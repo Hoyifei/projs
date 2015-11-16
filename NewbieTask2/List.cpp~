@@ -3,6 +3,12 @@
 #include "Company_iterator.h"
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
+void STList::showhead(){
+    for(Company_iterator* now=chead->next;now!=chead;now=now->next)
+    {
+    }
+}
 Game_iterator* STList::GameFirst(){
     return(ghead->next);
 }
@@ -184,6 +190,7 @@ STList::STList(){
     ghead->prev=ghead->next=ghead;
 }
 STList::~STList(){
+    showhead();
     for(Company_iterator* now=chead->next;now!=chead;now=DelCompany(now));
     DelCompany(chead);
     DelGame(ghead);
@@ -526,13 +533,15 @@ int STList::CountGame_c(int flag,Game model,Company_iterator* comp){
     int ans=0;
     while(now){
         now=FindGame_c(flag,model,now);
-        if(now) {++ans;now=now->Next_company();}
+        if(now) ++ans;
     }
     return(ans);
 }
 void STList::CountGame_e(int flag,Game model){
-    for(Company_iterator* now=chead->next;now!=chead;now=now->next)
+    for(Company_iterator* now=chead->next;now!=chead;now=now->next){
+        printf("Count company %s's Games\n",now->content.Name);
         now->content.MatchedGame=CountGame_c(flag,model,now);
+    }
 }
 Company_iterator* STList::FindCompany(int flag,Company model,Company_iterator *head){
     for(Company_iterator *now=head;now!=chead;now=now->next){

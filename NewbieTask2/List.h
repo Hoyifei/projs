@@ -74,6 +74,5 @@ public:
     //find company
     //flag=binary(aabbccdd)
     //aa:name bb:description cc:totGames dd:matchedGames
-    void showhead();
 };
 #endif

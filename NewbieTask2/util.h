@@ -1,15 +1,15 @@
 #ifndef NTASK2_UTIL
 #define NTASK2_UTIL
-#define ALLOCATE_UNITS 5
+#define ALLOCATE_UNITS 314
 //--------defines of memory allocating
 #define GAME_IGNORENAME (0)
 #define GAME_COMPARENAME (1<<8)
-#define GAME_COMPARENAME_NOWILDCAD (1<<9)
+#define GAME_COMPARENAME_NOWILDCARD (1<<9)
 #define GAME_COMPARENAME_COMPLETELYMATCH (3<<8)
 #define GAME_IGNOREDESC (0)
 #define GAME_COMPAREDESC (1<<6)
 #define GAME_COMPAREDESC_NOWILDCARD (1<<7)
-#define GAME_COMPAREDESC_COMPLETELYNATCH (3<<6)
+#define GAME_COMPAREDESC_COMPLETELYMATCH (3<<6)
 #define GAME_IGNOREHOUR (0)
 #define GAME_HOUR_MORE (1<<4)
 #define GAME_HOUR_LESS (1<<5)
@@ -39,10 +39,13 @@
 #define COMP_MATCHEDGAME_LESS (2)
 #define COMP_MATCHEDGAME_EQUAL (3)
 //----------defines of matching flags--------------------
-bool compstr_WC(const char* origin,const char* target);
 //string compare with wildcard
-bool compstr(const char* origin,const char* target); 
-//string compare without wildcard
 //if origin includs target,return 1
+class Util_Funcs{
+public:
+    bool compstr_WC(const char*,const char*);
+    bool compstr(const char*,const char*);
+    void givestr(char*,const char*);
+};
 #endif // NTASK2_UTIL
 

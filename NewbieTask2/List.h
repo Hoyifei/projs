@@ -1,6 +1,9 @@
 #ifndef NTASK2_LIST
 #define NTASK2_LIST
 #include "util.h"
+#include "Company.h"
+#include "Game.h"
+#include "Achievements.h"
 class Company_iterator;
 class Game_iterator;
 struct Company;
@@ -10,6 +13,7 @@ class STList{
 public:
 	 STList();
 	 ~STList();
+    Util_Funcs ut;
     Achieve *aachi;
     Company_iterator *acomp,*chead;
     Game_iterator *agame,*ghead;
@@ -18,16 +22,16 @@ public:
     void creategame(int num);
     void createachi(int num);
     void qsort_game(Game_iterator* l,Game_iterator* r,bool ( * cmp )(Game_iterator*,Game_iterator*));
-    bool sort_by_gamename(Game_iterator *a,Game_iterator *b);
-    bool sort_by_companyname(Company_iterator *a,Company_iterator *b);
+    void qsort_game_company(Game_iterator* l,Game_iterator* r,bool ( * cmp )(Game_iterator*,Game_iterator*));
+    void qsort_company(Company_iterator* l,Company_iterator* r,bool ( * cmp )(Company_iterator*,Company_iterator*));
     Achieve* GetAchieve();
     Company_iterator* GetCompIterator();
     Game_iterator* GetGameIterator();
-	 void delAchieve(Achieve* tar);
+	void deleteAchieve(Achieve* tar);
     Achieve* DelAchieve(Achieve* tar);
-	 void delCompany(Achieve* tar);
+	void deleteCompany(Company_iterator* tar);
     Company_iterator* DelCompany(Company_iterator* tar);
-	 void delGame(Game_iterator* tar);
+    void deleteGame(Game_iterator* tar);
     Game_iterator* DelGame(Game_iterator* tar);
 //--------------------------------------------------------------------------
     Game_iterator* GameFirst();
@@ -38,15 +42,15 @@ public:
     //sort games by custom compare function
     void SortGame_Company(Game_iterator* l,Game_iterator* r,bool ( * cmp )(Game_iterator*,Game_iterator*));
     //sort games in the same company by custom compare function
-    void SortCompany(Comapny_iterator* l,Company_iterator* r,bool ( * cmp )(Company_iterator*,Company_iterator*));
+    void SortCompany(Company_iterator* l,Company_iterator* r,bool ( * cmp )(Company_iterator*,Company_iterator*));
     //sort companies by custom compare function
     void InsertGame_p(Game_iterator *fr,Game_iterator *tar);
     //insert a game after fr by a pointer,with the same company as fr
-    void InsertGame(Game_iterator *fr,Game content);
+    Game_iterator* InsertGame(Game_iterator *fr,Game content);
     //insert a game after fr by a description,with the same company as fr
     void InsertCompany_p(Company_iterator *fr,Company_iterator *tar);
     //insert a company after fr by a pointer
-    void InsertCompany(Company_iterator *fr,Company content);
+    Company_iterator* InsertCompany(Company_iterator *fr,Company content);
     //insert a company after fr by a description
     Game_iterator* FindGame(int flag,Game model,Game_iterator* head);
     //find and the return the first game after head
@@ -70,4 +74,6 @@ public:
     //find company
     //flag=binary(aabbccdd)
     //aa:name bb:description cc:totGames dd:matchedGames
-}
+    void showhead();
+};
+#endif

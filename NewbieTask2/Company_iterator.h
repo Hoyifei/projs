@@ -11,8 +11,8 @@ public:
     Company content;
     STList *global;
 //--------------------------------------------------
-	 Company_iterator();
-	 ~Company_iterator();
+	void init();
+    void unins();
     Game_iterator* GameFirst();
     Game_iterator* GameLast();
     Company_iterator* Next();

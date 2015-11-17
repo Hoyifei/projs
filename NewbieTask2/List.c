@@ -182,8 +182,6 @@ void deleteAchieve(T_Achi* tar)
 void deleteGame(T_Game* tar)
 {
     if(tar==0) return;
-    deleteAchieve(tar->head);
-    tar->head=0;
     T_List *source=tar->global;
     ++source->cagame;
     tar->next=source->agame;
@@ -197,6 +195,7 @@ void deleteGame(T_Game* tar)
         for(i=1; i<=ALLOCATE_UNITS; ++i)
         {
             tail=tail->next;
+            deleteAchieve(now->head);
             free(now);
             now=tail;
         }
@@ -209,8 +208,6 @@ void deleteGame(T_Game* tar)
 void deleteCompany(T_Comp* tar)
 {
     if(tar==0) return;
-    deleteGame(tar->head);
-    tar->head=0;
     T_List *source=tar->global;
     ++source->cacomp;
     tar->next=source->acomp;
@@ -224,6 +221,7 @@ void deleteCompany(T_Comp* tar)
         for(i=1; i<=ALLOCATE_UNITS; ++i)
         {
             tail=tail->next;
+            deleteGame(now->head);
             free(now);
             now=tail;
         }
@@ -237,8 +235,10 @@ T_Achi* DelAchieve(T_Achi* tar)
 {
     if(tar==0) return(0);
     T_Achi *ans=tar->next;
-    tar->next->prev=tar->prev;
-    tar->prev->next=tar->next;
+    if(tar->next){
+    	tar->next->prev=tar->prev;
+    	tar->prev->next=tar->next;
+    }
     deleteAchieve(tar);
     return(ans);
 }
@@ -246,10 +246,14 @@ T_Game* DelGame(T_Game* tar)
 {
     if(tar==0) return(0);
     T_Game *ans=tar->cnext;
-    tar->prev->next=tar->next;
-    tar->cnext->cprev=tar->cprev;
-    tar->next->prev=tar->prev;
-    tar->cprev->cnext=tar->cnext;
+    if(tar->next){
+        tar->prev->next=tar->next;
+        tar->next->prev=tar->prev;
+    }
+    if(tar->cnext){
+        tar->cnext->cprev=tar->cprev;
+        tar->cprev->cnext=tar->cnext;
+    }
     T_Achi* now;
     for(now=tar->head->next; now!=tar->head; now=DelAchieve(now));
     deleteGame(tar);
@@ -259,8 +263,10 @@ T_Comp* DelCompany(T_Comp* tar)
 {
     if(tar==0) return(0);
     T_Comp *ans=tar->next;
-    tar->prev->next=tar->next;
-    tar->next->prev=tar->prev;
+    if(tar->next){
+        tar->prev->next=tar->next;
+        tar->next->prev=tar->prev;
+    }
     T_Game* now;
     for(now=tar->head->cnext; now!=tar->head; now=DelGame(now));
     deleteCompany(tar);
@@ -463,14 +469,16 @@ void InsertGame_p(T_Game *fr,T_Game *tar)
     {
         tar->prev=GameLast(fr->global);
         tar->next=fr->global->ghead;
+        tar->cprev=fr->cprev;
+        tar->cnext=fr;
     }
     else
     {
         tar->prev=fr;
         tar->next=fr->next;
+        tar->cprev=fr;
+        tar->cnext=fr->cnext;
     }
-    tar->cprev=fr;
-    tar->cnext=fr->cnext;
     tar->next->prev=tar->cnext->cprev=tar->prev->next=tar->cprev->cnext=tar;
     tar->comp=fr->comp;
     fr->comp->content.TotalGame++;

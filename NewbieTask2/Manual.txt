@@ -1,0 +1,169 @@
+小小的说明：
+1、编译说明
+	请include SteamList_HYF.h,链接的时候加上-lSteamList_HYF，记得指向libSteamList_HYF.a所在的位置。
+2、Referrence
+	1)结构
+		#define T_game struct Game
+		struct Game{
+			char Name[50]; //游戏名
+			char Description[1000]; //游戏描述
+			int TotAchieve; //成就总数，会自动维护
+			int MyAchieve; //已达成的成就，会自动维护
+			int Hours; //已玩的小时数，请自己随意
+		}
+		#define T_comp struct Company
+		struct Company{
+			char Name[50]; //公司名
+			char Description[1000]; //公司描述
+			int TotGame; //游戏总数，会自动维护
+			int MatchedGame; //使用"CountGame_e"函数后，统计结果会存到这里
+		}
+		#define T_Achi struct Achieve
+		struct Achieve{
+			char Name[50];//成就名
+			char Description[1000];//成就描述
+			T_Achi *prev,*next;//前一个\后一个成就
+			int Got;//是否获得该成就（也可以考虑改成成就分数什么的）
+			T_Game *Game;//该成就所属的游戏		
+		}
+		#define T_Game struct Game_iterator//本来取了相当正规的名字来着
+		struct Game_iterator{
+			T_Comp *comp//该游戏所属的公司
+			T_Game *prev,*next;//在所有游戏中，这个游戏的上一个\下一个
+			T_Game *cprev,*cnext;//在同一公司的游戏中，这个游戏的上一个\下一个
+			T_Achi *head;//成就链表的表头，是空的
+			T_game content;//游戏的各种信息
+			T_List *global;//游戏所属的链表
+			int order;//排序时用到的辅助用数字，是排序时自动生成的		
+		}
+		#define T_Comp struct Compay_iterator
+		struct Company_iterator{
+			T_Comp *prev,*next;//这个公司的上一个\下一个
+			T_Game *head;//公司下属的游戏链表的表头，是空的。
+			T_comp content;//公司的各种信息
+			T_List *global;//公司所属的链表
+			int order;//排序时用到的辅助用数字，是排序时自动生成的		
+		}
+		#define T_List STList//STeam List,跟STL没有半毛钱关系
+		struct STList{
+			T_Achi *aachi;//成就的内存池的链表表头
+			T_Comp *acomp;//公司的内存池的链表表头
+			T_Game *agame;//游戏的内存池的链表表头
+			T_Comp *chead;//公司的链表表头，是空的
+			T_Game *ghead;//游戏的链表表头，是空的
+			int caachi,cacomp,cagame;	//	内存池中剩的可用元素，会自动维护。
+		}
+	2)常数：
+		#define ALLOCATE_UNITS 514 //一次创建新元素，创建的元素个数。
+//------------------------------------------------------------------------------------------------------------------------------------------------------------
+		#define GAME_IGNORENAME (0)//在FindGame或CountGame时，忽略Name字段
+		#define GAME_COMPARENAME (1<<8)//对Name字段进行比较
+		#define GAME_COMPARENAME_NOWILDCARD (1<<9)//对Name字段进行比较，不认为'*'和'?'是通配符
+		#define GAME_COMPARENAME_COMPLETELYMATCH (3<<8)//对Name字段进行比较，要求完全一致
+//------------------------------------------------------------------------------------------------------------------------------------------------------------
+		#define GAME_IGNOREDESC (0)//FindGame或CountGame时对Description字段的比较方式
+		#define GAME_COMPAREDESC (1<<6)
+		#define GAME_COMPAREDESC_NOWILDCARD (1<<7)
+		#define GAME_COMPAREDESC_COMPLETELYMATCH (3<<6)
+//------------------------------------------------------------------------------------------------------------------------------------------------------------
+		#define GAME_IGNOREHOUR (0)//FindGame或CountGame时忽略Hours字段
+		#define GAME_HOUR_MORE (1<<4)//要求游戏的Hours字段大于等于查找条件的Hours
+		#define GAME_HOUR_LESS (1<<5)//要求游戏的Hours字段小于等于查找条件的Hours
+		#define GAME_HOUR_EQUAL (3<<4)//要求游戏的Hours字段等于查找条件的Hours
+//------------------------------------------------------------------------------------------------------------------------------------------------------------
+		#define GAME_IGNORETOTACHIEVE (0)//FindGame或CountGame时对TotAchieve字段的比较方式
+		#define GAME_TOTACHIEVE_MORE (1<<2)
+		#define GAME_TOTACHIEVE_LESS (1<<3)
+		#define GAME_TOTACHIEVE_EQUAL (3<<2)
+//------------------------------------------------------------------------------------------------------------------------------------------------------------
+		#define GAME_IGNOREMYACHIEVE (0)//FindGame或CountGame时对MyAchieve字段的比较方式
+		#define GAME_MYACHIEVE_MORE (1)
+		#define GAME_MYACHIEVE_LESS (2)
+		#define GAME_MYACHIEVE_EQUAL (3)
+//------------------------------------------------------------------------------------------------------------------------------------------------------------
+		#define COMP_IGNORENAME (0)//FindCompany对Name字段的比较方式
+		#define COMP_COMPARENAME (1<<6)
+		#define COMP_COMPARENAME_NOWILDCARD (1<<7)
+		#define COMP_COMPARENAME_COMPLETELYMATCH (3<<6)
+//------------------------------------------------------------------------------------------------------------------------------------------------------------
+		#define COMP_IGNOREDESC (0)//FindCompany对Description字段的比较方式
+		#define COMP_COMPAREDESC (1<<4)
+		#define COMP_COMPAREDESC_NOWILDCARD (1<<5)
+		#define COMP_COMPAREDESC_COMPLETELYMATCH (3<<4)
+//------------------------------------------------------------------------------------------------------------------------------------------------------------
+		#define COMP_IGNORETOTGAME (0)//FindCompany对TotalGame字段的比较方式
+		#define COMP_TOTGAME_MORE (1<<2)
+		#define COMP_TOTGAME_LESS (1<<3)
+		#define COMP_TOTGAME_EQUAL (3<<2)
+//------------------------------------------------------------------------------------------------------------------------------------------------------------
+		#define COMP_IGNOREMATCHEDGAME (0)//FindCompany对MatchedGame字段的比较方式
+		#define COMP_MATCHEDGAME_MORE (1)
+		#define COMP_MATCHEDGAME_LESS (2)
+		#define COMP_MATCHEDGAME_EQUAL (3)
+//------------------------------------------------------------------------------------------------------------------------------------------------------------
+	3)函数
+		Next_a(T_Achi *tar);
+		Prev_a(T_Achi *tar);//返回成就tar的上一个\下一个成就。 
+								  //如果tar是该游戏里的第一个\最后一个成就，返回0
+								 //如果tar不属于什么游戏，可能导致崩溃！
+		Next_g(T_Game *tar);
+		Prev_g(T_Game *tar);//返回游戏tar在所有游戏中的上一个\下一个游戏
+								 //如果tar在所有游戏中是第一个\最后一个游戏，返回0
+								 //如果tar不属于某个List,可能会崩！
+		Next_company(T_Game *tar);
+		Prev_company(T_Game *tar);//返回游戏tar在同一公司的游戏中的上一个\下一个游戏
+								 //如果tar在同一公司的游戏中是第一个\最后一个游戏，返回0
+								 //如果tar不属于某个公司,可能会崩
+		Next_c(T_Comp *tar);
+		Prev_c(T_Comp *tar);//返回公司tar的上一个\下一个公司
+								 //如果tar是第一个\最后一个公司，返回0
+								 //如果tar不属于某个List,可能会崩
+		isFirst_a(T_Achi *tar);
+		isLast_a(T_Achi *tar);
+		isFirst_g(T_Achi *tar);
+		isLast_g(T_Achi *tar);
+		isFirst_company(T_Achi *tar);
+		isLast_company(T_Achi *tar);
+		isFirst_c(T_Achi *tar);
+		isLast_c(T_Achi *tar);//检查tar是否是第一个\最后一个。不正确的tar可能会导致崩溃
+//---------------------------------------------------------------------------------------------------------------------------------------------------------------
+		GameFirst(T_List *tar);
+		GameLast(T_List *tar);
+		CompanyFirst(T_List *tar);
+		CompanyLast(T_List *tar);
+		GameFirst_c(T_Comp *tar);
+		GameLast_c(T_Comp *tar);
+		Achieve_First(T_Game *tar);
+		Achieve_Last(T_Game *tar);//获得第一个\最后一个元素。如果没有的话就返回表头。
+//----------------------------------------------------------------------------------------------------------------------------------------------------------------
+		InsertGame_p(T_Game *fr,T_Game *tar);//把tar插入到fr后面，公司也与fr保持一致。如果fr是某个公司的表头，就把这个游戏插到最后
+		InsertGame(T_Game *fr,T_game content);//以content为内容新建一个T_Game并插入。会返回创建的T_Game的指针
+		addAchievep(T_Game *tar,T_Achi *content);//把成就加入到游戏中，自动设为未完成。
+		addAchievev(T_Game *tar,const char* Name,const char* Description);//以Name和Description为内容建立成就并加入到游戏中。
+		InsertCompany(T_Comp *fr,T_Comp *tar);
+		InsertCompany(T_Comp *fr,T_comp content);//插入一个公司
+		GetAchieve(T_List *source);
+		GetGameIterarot(T_List *source);
+		GetCompIterator(T_List *source);//从source的内存池中分配一个元素并返回。
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------
+		DelGame(T_Game *tar);//自动把tar从链表中分离并删除,返回同一公司的后一个T_Game
+		deleteGame(T_Game *tar);//把tar回收进内存池,认为tar的表头仍然存在。不会把tar从已有链表中分离。
+		DelCompany(T_Comp *tar);
+		deleteCompany(T_Comp *tar);
+		DelAchieve(T_Achi *tar);
+		delAchieve(T_Achi *tar);
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   SortGame(l,r,int cmp(T_Game,T_Game));//将l,r之间的Game按cmp指定的方式排序。如果l,r反了会自动倒过来，如果l,r不在同一个T_List中就什么也不做。
+                                    //会同时改变各company中的顺序。
+   SortGame_Company(l,r,int cmp(T_Game,T_Game));//将l,r之间，与l,r同属于一个公司的游戏排序。
+   SortCompany(l,r,cmp);//对公司排序
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   FindGame(int flag,T_game model,T_Game* fr);//找到fr后面第一个符合条件的Game并返回。找不到就返回0
+                                              //flag的内容是上面提到的常数，用|连接
+   FindGame_c(...);//找到fr后面和fr是同一公司的符合条件的Game并返回
+   FindCompany(int flag,T_comp model,T_Comp* fr)//找公司并返回
+   CountGame(int flag,T_game model,T_List* source);//在链表source里统计符合条件的game的个数
+   CountGame_c(...,...,T_Comp* source);//在公司source里统计game的个数。
+   CountGame_e(...,...,T_List* source);//在链表中对每一个公司统计符合条件的game的个数，并存入公司content.MatchedGame字段中。
+//---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    还有一些负责内存管理的函数，太累了不写了。

@@ -1,6 +1,6 @@
 #ifndef NTASK2_UTIL
 #define NTASK2_UTIL
-#define ALLOCATE_UNITS 3
+#define ALLOCATE_UNITS 514
 //--------defines of memory allocating
 #define GAME_IGNORENAME (0)
 #define GAME_COMPARENAME (1<<8)

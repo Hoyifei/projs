@@ -1,32 +1,29 @@
 #ifndef NTASK2_GAME_ITERATOR
 #define NTASK2_GAME_ITERATOR
 #include "Game.h"
-class Company_iterator;
-class STList;
-class Achieve;
-class Game_iterator{
-public:
-    Game_iterator *next,*prev,*cnext,*cprev;
-    Company_iterator *comp;
-    Achieve* head;
+#define T_Game struct Game_iterator
+struct Company_iterator;
+struct STList;
+struct Achieve;
+struct Game_iterator
+{
+    T_Game *next,*prev,*cnext,*cprev;
+    struct Company_iterator *comp;
+    struct Achieve* head;
     int order;
-    Game content;
-    STList *global;
-//---------------------------------------------------------------
-	void init();
-	void unins();
-    Game_iterator* Next();
-    Game_iterator* Prev();
-    Game_iterator* Next_company();
-    Game_iterator* Prev_company();
-    Achieve* Achieve_First();
-    Achieve* Achieve_Last();
-    Company_iterator* Company();
-    bool isLast();
-    bool isFirst();
-    bool isLast_company();
-    bool isFirst_company();
-    void addAchievep(Achieve *val);
-    Achieve* addAchievev(const char* name,const char* description);
+    struct Game content;
+    struct STList *global;
 };
+void init_g(T_Game *tar);
+struct Company_iterator* Company(T_Game *tar);
+int isFirst_g(T_Game *tar);
+int isLast_g(T_Game *tar);
+int isFirst_company(T_Game *tar);
+int isLast_company(T_Game *tar);
+struct Achieve* Achieve_First(T_Game *tar);
+struct Achieve* Achieve_Last(T_Game *tar);
+T_Game* Next_g(T_Game *tar);
+T_Game* Prev_g(T_Game *tar);
+T_Game* Next_company(T_Game *tar);
+T_Game* Prev_company(T_Game *tar);
 #endif // NTASK2_GAME_ITERATOR

@@ -1,23 +1,23 @@
 #ifndef NTASK2_COMPANY_ITERATOR
 #define NTASK2_COMPANY_ITERATOR
 #include "Company.h"
-class Game_iterator;
-class STList;
-class Company_iterator{
-public:
+#define T_Comp struct Company_iterator
+struct Game_iterator;
+struct STList;
+struct Company_iterator
+{
     int order;
-    Game_iterator *head;
-    Company_iterator *next,*prev;
-    Company content;
-    STList *global;
+    struct Game_iterator *head;
+    T_Comp *next,*prev;
+    struct Company content;
+    struct STList *global;
 //--------------------------------------------------
-	void init();
-    void unins();
-    Game_iterator* GameFirst();
-    Game_iterator* GameLast();
-    Company_iterator* Next();
-    Company_iterator* Prev();
-    bool isLast();
-    bool isFirst();
 };
+struct Game_iterator* GameFirst_c(T_Comp* tar);
+struct Game_iterator* GameLast_c(T_Comp* tar);
+int isFirst_c(T_Comp* tar);
+int isLast_c(T_Comp* tar);
+T_Comp* Next_c(T_Comp* tar);
+T_Comp* Prev_c(T_Comp* tar);
+void init_c(T_Comp* tar);
 #endif // NTASK2_COMPANY_ITERATOR

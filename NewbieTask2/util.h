@@ -1,6 +1,6 @@
 #ifndef NTASK2_UTIL
 #define NTASK2_UTIL
-#define ALLOCATE_UNITS 314
+#define ALLOCATE_UNITS 3
 //--------defines of memory allocating
 #define GAME_IGNORENAME (0)
 #define GAME_COMPARENAME (1<<8)
@@ -41,11 +41,8 @@
 //----------defines of matching flags--------------------
 //string compare with wildcard
 //if origin includs target,return 1
-class Util_Funcs{
-public:
-    bool compstr_WC(const char*,const char*);
-    bool compstr(const char*,const char*);
-    void givestr(char*,const char*);
-};
+int compstr_WC(const char*,const char*);
+int compstr(const char*,const char*);
+void givestr(char*,const char*);
 #endif // NTASK2_UTIL
 

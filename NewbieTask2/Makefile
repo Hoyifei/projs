@@ -12,7 +12,6 @@ util.o : util.h util.c
 	gcc -c util.c -o util.o
 test : libSteamList_HYF.a main.c
 	gcc -L./ -o test main.c -lSteamList_HYF
-	./test
 clean :
 	rm *.o
 

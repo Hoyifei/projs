@@ -34,6 +34,7 @@ void addAchievep(T_Achi* val,T_Game *tar)
 }
 T_Achi* addAchievev(const char* name,const char* description,T_Game *tar)
 {
+    if(tar->global==0) return;
     T_Achi* val=GetAchieve(tar->global);
     int i;
     for(i=0; name[i]; ++i) val->Name[i]=name[i];
@@ -156,6 +157,7 @@ T_Comp* GetCompIterator(T_List* source)
 void deleteAchieve(T_Achi* tar)
 {
     if(tar==0) return;
+    if(tar->Game==0||tar->Game->global==0) return;
     T_List *source=tar->Game->global;
     ++source->caachi;
     tar->next=source->aachi;
@@ -182,6 +184,7 @@ void deleteAchieve(T_Achi* tar)
 void deleteGame(T_Game* tar)
 {
     if(tar==0) return;
+    if(tar->global==0) return;
     T_List *source=tar->global;
     ++source->cagame;
     tar->next=source->agame;
@@ -208,6 +211,7 @@ void deleteGame(T_Game* tar)
 void deleteCompany(T_Comp* tar)
 {
     if(tar==0) return;
+    if(tar->global==0) return;
     T_List *source=tar->global;
     ++source->cacomp;
     tar->next=source->acomp;
@@ -465,6 +469,8 @@ void qsort_company(T_Comp* l,T_Comp* r,int ( * cmp )(T_Comp* a,T_Comp* b))
 }
 void InsertGame_p(T_Game *fr,T_Game *tar)
 {
+    if(fr->global==0) return;
+    if(fr->comp==0) return;
     if(fr==fr->comp->head)
     {
         tar->prev=GameLast(fr->global);
@@ -486,6 +492,8 @@ void InsertGame_p(T_Game *fr,T_Game *tar)
 }
 T_Game* InsertGame(T_Game *fr,struct Game content)
 {
+    if(fr->global==0) return(0);
+    if(fr->comp==0) return(0);
     T_Game *tar=GetGameIterator(fr->global);
     givestr(tar->content.Name,content.Name);
     givestr(tar->content.Description,content.Description);
@@ -497,6 +505,7 @@ void SortGame(T_Game* l,T_Game* r,int ( * cmp )(T_Game* a,T_Game* b))
     int cnt=0;
     if(l->global!=r->global) return;
     T_List* source=l->global;
+    if(source==0) return;
     T_Game* gnow;
     T_Comp* cnow;
     for(gnow=source->ghead->next; gnow!=source->ghead; gnow=gnow->next)
@@ -516,7 +525,7 @@ void SortGame(T_Game* l,T_Game* r,int ( * cmp )(T_Game* a,T_Game* b))
 }
 void SortGame_Company(T_Game* l,T_Game* r,int ( * cmp )(T_Game* a,T_Game* b))
 {
-    if(l->comp!=r->comp) return;
+    if(l->comp!=r->comp||l->comp==0) return;
     int cnt=0;
     T_Game *he=l->comp->head,*now;
     for(now=he->cnext; now!=he; now=now->cnext)
@@ -529,6 +538,7 @@ void SortCompany(T_Comp* l,T_Comp* r,int( * cmp )(T_Comp* a,T_Comp* b))
     int cnt=0;
     if(l->global!=r->global) return;
     T_List *source=l->global;
+    if(source==0) return;
     T_Comp *now;
     for(now=source->chead->next; now!=source->chead; now=now->next) now->order=++cnt;
     if(l->order<r->order) qsort_company(l,r,cmp);
@@ -536,6 +546,7 @@ void SortCompany(T_Comp* l,T_Comp* r,int( * cmp )(T_Comp* a,T_Comp* b))
 }
 void InsertCompany_p(T_Comp* fr,T_Comp* tar)
 {
+    if(fr->global==0) return;
     tar->next=fr->next;
     tar->prev=fr;
     fr->next=tar;
@@ -544,6 +555,7 @@ void InsertCompany_p(T_Comp* fr,T_Comp* tar)
 }
 T_Comp* InsertCompany(T_Comp* fr,struct Company content)
 {
+    if(fr->global==0) return(0);
     T_Comp *tar=GetCompIterator(fr->global);
     tar->content=content;
     InsertCompany_p(fr,tar);
@@ -552,6 +564,7 @@ T_Comp* InsertCompany(T_Comp* fr,struct Company content)
 T_Game* FindGame(int flag,struct Game model,T_Game *head)
 {
     T_Game *now;
+    if(head->global==0) return;
     for(now=head; now!=head->global->ghead; now=now->next)
     {
         switch(flag&GAME_COMPARENAME_COMPLETELYMATCH)
@@ -630,6 +643,7 @@ T_Game* FindGame(int flag,struct Game model,T_Game *head)
 }
 T_Game* FindGame_c(int flag,struct Game model,T_Game *head)
 {
+    if(head->comp==0) return;
     T_Game *he=head->comp->head,*now;
     for(now=head; now!=he; now=now->cnext)
     {
@@ -746,6 +760,7 @@ void CountGame_e(int flag,struct Game model,T_List* source)
 T_Comp* FindCompany(int flag,struct Company model,T_Comp *head)
 {
     T_Comp *now;
+    if(head->global==0) return(0);
     for(now=head; now!=head->global->chead; now=now->next)
     {
         switch(flag&COMP_COMPARENAME_COMPLETELYMATCH)

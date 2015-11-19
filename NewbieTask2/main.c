@@ -40,7 +40,8 @@ int main()
         }
         printf("Insert Company %d\n",i);
     }
-    printf("aaa\n");
+    T_game model;givestr(model.Name,"1");
+    printf("%d\n",CountGame(GAME_COMPARENAME,model,&fuck));
     for(i=1;i<=50;++i) DelCompany(CompanyLast(&fuck));
     clean_up(&fuck);
     printf("Program exited with no error\n");

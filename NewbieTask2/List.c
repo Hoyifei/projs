@@ -5,6 +5,95 @@
 #include "Achievements.h"
 #include <string.h>
 #include <stdlib.h>
+#define GETELEM_CODE(TYPE,POOLHEAD,CREATEFUNC,CNT,CIRCSENT) \
+        if(source->POOLHEAD==0) CREATEFUNC(ALLOCATE_UNITS,source);\
+        if(source->POOLHEAD->next==source->POOLHEAD) CREATEFUNC(ALLOCATE_UNITS,source);\
+        TYPE *ans=source->POOLHEAD;\
+        source->POOLHEAD->next->prev=source->POOLHEAD->prev;\
+        source->POOLHEAD->prev->next=source->POOLHEAD->next;\
+        source->POOLHEAD=source->POOLHEAD->next;\
+        CIRCSENT\
+        --source->CNT;\
+        return(ans);
+#define CREATEELEM_CODE(TYPE,POOLHEAD,CNT,INIT_SENT1,INIT_SENT2) \
+    TYPE* tmp;\
+    int i;\
+    if(source->POOLHEAD==0)\
+    {\
+                source->POOLHEAD=(TYPE*)malloc(sizeof(TYPE));\
+                source->POOLHEAD->prev=source->POOLHEAD->next=source->POOLHEAD;\
+                INIT_SENT1\
+            }\
+    for(i=0; i<num; ++i)\
+    {\
+                tmp=(TYPE*)malloc(sizeof(TYPE));\
+                tmp->prev=source->POOLHEAD;\
+                tmp->next=source->POOLHEAD->next;\
+                tmp->prev->next=tmp->next->prev=tmp;\
+                INIT_SENT2\
+            }\
+    source->CNT+=num;
+#define DELETEELEM_CODE(TYPE,GLOBAL,CNT,POOLHEAD,ILLEGAL_SENT,CLEAN_SENT) \
+        if(tar==0) return;\
+    ILLEGAL_SENT\
+    T_List *source=GLOBAL;\
+    ++source->CNT;\
+    tar->next=source->POOLHEAD;\
+    tar->prev=source->POOLHEAD->prev;\
+    tar->next->prev=tar->prev->next=tar;\
+    if(source->CNT>=3*ALLOCATE_UNITS)\
+    {\
+                TYPE *now=source->POOLHEAD,*head=source->POOLHEAD->prev,*tail=source->POOLHEAD;\
+                int i;\
+                for(i=1;i<=ALLOCATE_UNITS;++i)\
+                {\
+                                tail=tail->next;\
+                                CLEAN_SENT\
+                                free(now);\
+                                now=tail;\
+                            }\
+                head->next=tail;\
+                tail->prev=head;\
+                source->POOLHEAD=head;\
+                source->CNT-=ALLOCATE_UNITS;\
+    }
+#define CLEANELEM_CODE(TYPE,PNOW,PNEXT,POOLHEAD) \
+	TYPE *PNOW,*PNEXT;\
+	for(PNOW=source->POOLHEAD->next;PNOW!=source->POOLHEAD;)\
+	{\
+		PNEXT=PNOW->next;\
+		free(PNOW);\
+		PNOW=PNEXT;\
+	}\
+	free(source->POOLHEAD);
+#define STRING_COMPARE_CODE(FLAG,STR1,STR2,COND_I,COND_C,COND_CN,COND_CC) \
+	switch(FLAG)\
+	{\
+		case COND_I:\
+			break;\
+		case COND_C:\
+			if(!compstr_WC(STR1,STR2)) continue;\
+			break;\
+		case COND_CN:\
+			if(!compstr(STR1,STR2)) continue;\
+			break;\
+		case COND_CC:\
+			if(strcmp(STR1,STR2)!=0) continue;\
+	}
+#define INT_COMPARE_CODE(FLAG,INT1,INT2,COND_I,COND_M,COND_L,COND_E) \
+	switch(FLAG)\
+	{\
+		case COND_I:\
+			break;\
+		case COND_M:\
+			if(INT1<INT2) continue;\
+			break;\
+		case COND_L:\
+			if(INT1>INT2) continue;\
+			break;\
+		case COND_E:\
+			if(INT1!=INT2) continue;\
+	}
 T_Game* GameFirst(T_List* source)
 {
     return(source->ghead->next);
@@ -59,181 +148,39 @@ void Clear_a(T_Achi* tar)
 }
 void createachi(int num,T_List* source)
 {
-    T_Achi* tmp;
-    int i;
-    if(source->aachi==0)
-    {
-        source->aachi=(T_Achi*)malloc(sizeof(T_Achi));
-        source->aachi->prev=source->aachi->next=source->aachi;
-    }
-    for(i=0; i<num; ++i)
-    {
-        tmp=(T_Achi*)malloc(sizeof(T_Achi));
-        tmp->prev=source->aachi;
-        tmp->next=source->aachi->next;
-        tmp->prev->next=tmp->next->prev=tmp;
-    }
-    source->caachi+=num;
+    CREATEELEM_CODE(T_Achi,aachi,caachi,;,;)
 }
 void createcomp(int num,T_List* source)
 {
-    T_Comp* tmp;
-    int i;
-    if(source->acomp==0)
-    {
-        source->acomp=(T_Comp*)malloc(sizeof(T_Comp));
-        source->acomp->prev=source->acomp->next=source->acomp;
-        source->acomp->global=source;
-        init_c(source->acomp);
-    }
-    for(i=0; i<num; ++i)
-    {
-        tmp=(T_Comp*)malloc(sizeof(T_Comp));
-        tmp->prev=source->acomp;
-        tmp->next=source->acomp->next;
-        tmp->prev->next=tmp->next->prev=tmp;
-        tmp->global=source;
-        init_c(tmp);
-    }
-    source->cacomp+=num;
+    CREATEELEM_CODE(T_Comp,acomp,cacomp,source->acomp->global=source;init_c(source->acomp);,tmp->global=source;init_c(tmp);)
 }
 void creategame(int num,T_List* source)
 {
-    T_Game* tmp;
-    int i;
-    if(source->agame==0)
-    {
-        source->agame=(T_Game*)malloc(sizeof(T_Game));
-        source->agame->next=source->agame->prev=source->agame;
-        source->agame->global=source;
-        init_g(source->agame);
-    }
-    for(i=0; i<num; ++i)
-    {
-        tmp=(T_Game*)malloc(sizeof(T_Game));
-        tmp->prev=source->agame;
-        tmp->next=source->agame->next;
-        tmp->prev->next=tmp->next->prev=tmp;
-        tmp->global=source;
-        init_g(tmp);
-    }
-    source->cagame+=num;
+    CREATEELEM_CODE(T_Game,agame,cagame,source->agame->global=source;init_g(source->agame);,tmp->global=source;init_g(tmp);)
 }
-T_Achi *GetAchieve(T_List *source)
+T_Achi *GetAchieve(T_List* source)
 {
-    if(source->aachi==0) createachi(ALLOCATE_UNITS,source);
-    if(source->aachi->next==source->aachi) createachi(ALLOCATE_UNITS,source);
-    T_Achi* ans=source->aachi;
-    source->aachi->next->prev=source->aachi->prev;
-    source->aachi->prev->next=source->aachi->next;
-    source->aachi=source->aachi->next;
-    ans->next=ans->prev=ans;
-    --source->caachi;
-    return(ans);
+    GETELEM_CODE(T_Achi,aachi,createachi,caachi,ans->next=ans->prev=ans;)
 }
 T_Game* GetGameIterator(T_List* source)
 {
-    if(source->agame==0) creategame(ALLOCATE_UNITS,source);
-    if(source->agame->next==source->agame) creategame(ALLOCATE_UNITS,source);
-    T_Game* ans=source->agame;
-    source->agame->next->prev=source->agame->prev;
-    source->agame->prev->next=source->agame->next;
-    source->agame=source->agame->next;
-    ans->next=ans->prev=ans->cnext=ans->cprev=ans;
-    --source->cagame;
-    return(ans);
+    GETELEM_CODE(T_Game,agame,creategame,cagame,ans->next=ans->prev=ans->cnext=ans->cprev=ans;)
 }
 T_Comp* GetCompIterator(T_List* source)
 {
-    if(source->acomp==0) createcomp(ALLOCATE_UNITS,source);
-    if(source->acomp->next==source->acomp) createcomp(ALLOCATE_UNITS,source);
-    T_Comp* ans=source->acomp;
-    source->acomp->next->prev=source->acomp->prev;
-    source->acomp->prev->next=source->acomp->next;
-    source->acomp=source->acomp->next;
-    --source->cacomp;
-    return(ans);
+    GETELEM_CODE(T_Comp,acomp,createcomp,cacomp,ans->next=ans->prev=ans;)
 }
 void deleteAchieve(T_Achi* tar)
 {
-    if(tar==0) return;
-    if(tar->Game==0||tar->Game->global==0) return;
-    T_List *source=tar->Game->global;
-    ++source->caachi;
-    tar->next=source->aachi;
-    tar->prev=source->aachi->prev;
-    source->aachi->prev->next=tar;
-    source->aachi->prev=tar;
-    source->aachi=tar;
-    if(source->caachi>=3*ALLOCATE_UNITS)
-    {
-        int i;
-        T_Achi *now=source->aachi,*head=source->aachi->prev,*tail=source->aachi;
-        for(i=1; i<=ALLOCATE_UNITS; ++i)
-        {
-            tail=tail->next;
-            free(now);
-            now=tail;
-        }
-        head->next=tail;
-        tail->prev=head;
-        source->aachi=head;
-        source->caachi-=ALLOCATE_UNITS;
-    }
+    DELETEELEM_CODE(T_Achi,tar->Game->global,caachi,aachi,if(tar->Game==0||tar->Game->global==0)return;,;)    
 }
 void deleteGame(T_Game* tar)
 {
-    if(tar==0) return;
-    if(tar->global==0) return;
-    T_List *source=tar->global;
-    ++source->cagame;
-    tar->next=source->agame;
-    tar->prev=source->agame->prev;
-    source->agame->prev->next=tar;
-    source->agame->prev=tar;
-    if(source->cagame>=3*ALLOCATE_UNITS)
-    {
-        T_Game *now=source->agame,*head=source->agame->prev,*tail=source->agame;
-        int i;
-        for(i=1; i<=ALLOCATE_UNITS; ++i)
-        {
-            tail=tail->next;
-            deleteAchieve(now->head);
-            free(now);
-            now=tail;
-        }
-        head->next=tail;
-        tail->prev=head;
-        source->agame=head;
-        source->cagame-=ALLOCATE_UNITS;
-    }
+    DELETEELEM_CODE(T_Game,tar->global,cagame,agame,if(tar->global==0) return;,deleteAchieve(now->head);)
 }
 void deleteCompany(T_Comp* tar)
 {
-    if(tar==0) return;
-    if(tar->global==0) return;
-    T_List *source=tar->global;
-    ++source->cacomp;
-    tar->next=source->acomp;
-    tar->prev=source->acomp->prev;
-    source->acomp->prev->next=tar;
-    source->acomp->prev=tar;
-    if(source->cacomp>=3*ALLOCATE_UNITS)
-    {
-        int i;
-        T_Comp *now=source->acomp,*head=source->acomp->prev,*tail=source->acomp;
-        for(i=1; i<=ALLOCATE_UNITS; ++i)
-        {
-            tail=tail->next;
-            deleteGame(now->head);
-            free(now);
-            now=tail;
-        }
-        head->next=tail;
-        tail->prev=head;
-        source->acomp=head;
-        source->cacomp-=ALLOCATE_UNITS;
-    }
+    DELETEELEM_CODE(T_Comp,tar->global,cacomp,acomp,if(tar->global==0) return;,deleteGame(now->head);)
 }
 T_Achi* DelAchieve(T_Achi* tar)
 {
@@ -289,30 +236,9 @@ void clean_up(T_List* source)
     for(now=source->chead->next; now!=source->chead; now=DelCompany(now));
     DelCompany(source->chead);
     DelGame(source->ghead);
-    T_Achi *atmp,*anow;
-    for(anow=source->aachi->next; anow!=source->aachi;)
-    {
-        atmp=anow->next;
-        free(anow);
-        anow=atmp;
-    }
-    free(source->aachi);
-    T_Game *gtmp,*gnow;
-    for(gnow=source->agame->next; gnow!=source->agame;)
-    {
-        gtmp=gnow->next;
-        free(gnow);
-        gnow=gtmp;
-    }
-    free(source->agame);
-    T_Comp *ctmp,*cnow;
-    for(cnow=source->acomp->next; cnow!=source->acomp;)
-    {
-        ctmp=cnow->next;
-        free(cnow);
-        cnow=ctmp;
-    }
-    free(source->acomp);
+    CLEANELEM_CODE(T_Achi,atmp,anow,aachi)
+    CLEANELEM_CODE(T_Game,gtmp,gnow,agame)
+    CLEANELEM_CODE(T_Comp,ctmp,cnow,acomp)
 }
 void qsort_game(T_Game* l,T_Game* r,int ( * cmp )(T_Game* a,T_Game* b))
 {
@@ -567,76 +493,11 @@ T_Game* FindGame(int flag,struct Game model,T_Game *head)
     if(head->global==0) return;
     for(now=head; now!=head->global->ghead; now=now->next)
     {
-        switch(flag&GAME_COMPARENAME_COMPLETELYMATCH)
-        {
-        case GAME_IGNORENAME:
-            break;
-        case GAME_COMPARENAME:
-            if(!compstr_WC(now->content.Name,model.Name)) continue;
-            break;
-        case GAME_COMPARENAME_NOWILDCARD:
-            if(!compstr(now->content.Name,model.Name)) continue;
-            break;
-        case GAME_COMPARENAME_COMPLETELYMATCH:
-            if(strcmp(now->content.Name,model.Name)!=0) continue;
-            break;
-        }
-        switch(flag&GAME_COMPAREDESC_COMPLETELYMATCH)
-        {
-        case GAME_IGNOREDESC:
-            break;
-        case GAME_COMPAREDESC:
-            if(!compstr_WC(now->content.Description,model.Description)) continue;
-            break;
-        case GAME_COMPAREDESC_NOWILDCARD:
-            if(!compstr(now->content.Description,model.Description)) continue;
-            break;
-        case GAME_COMPAREDESC_COMPLETELYMATCH:
-            if(strcmp(now->content.Description,model.Description)!=0) continue;
-            break;
-        }
-        switch(flag&GAME_HOUR_EQUAL)
-        {
-        case GAME_IGNOREHOUR:
-            break;
-        case GAME_HOUR_MORE:
-            if(now->content.Hours<model.Hours) continue;
-            break;
-        case GAME_HOUR_LESS:
-            if(now->content.Hours>model.Hours) continue;
-            break;
-        case GAME_HOUR_EQUAL:
-            if(now->content.Hours!=model.Hours) continue;
-            break;
-        }
-        switch(flag&GAME_TOTACHIEVE_EQUAL)
-        {
-        case GAME_IGNORETOTACHIEVE:
-            break;
-        case GAME_TOTACHIEVE_MORE:
-            if(now->content.TotAchieve<model.TotAchieve) continue;
-            break;
-        case GAME_TOTACHIEVE_LESS:
-            if(now->content.TotAchieve>model.TotAchieve) continue;
-            break;
-        case GAME_TOTACHIEVE_EQUAL:
-            if(now->content.TotAchieve!=model.TotAchieve) continue;
-            break;
-        }
-        switch(flag&GAME_MYACHIEVE_EQUAL)
-        {
-        case GAME_IGNOREMYACHIEVE:
-            break;
-        case GAME_MYACHIEVE_MORE:
-            if(now->content.MyAchieve<model.MyAchieve) continue;
-            break;
-        case GAME_MYACHIEVE_LESS:
-            if(now->content.MyAchieve>model.MyAchieve) continue;
-            break;
-        case GAME_MYACHIEVE_EQUAL:
-            if(now->content.MyAchieve!=model.MyAchieve) continue;
-            break;
-        }
+        STRING_COMPARE_CODE(flag&GAME_COMPARENAME_COMPLETELYMATCH,now->content.Name,model.Name,GAME_IGNORENAME,GAME_COMPARENAME,GAME_COMPARENAME_NOWILDCARD,GAME_COMPARENAME_COMPLETELYMATCH)
+        STRING_COMPARE_CODE(flag&GAME_COMPAREDESC_COMPLETELYMATCH,now->content.Description,model.Description,GAME_IGNOREDESC,GAME_COMPAREDESC,GAME_COMPAREDESC_NOWILDCARD,GAME_COMPAREDESC_COMPLETELYMATCH)
+        INT_COMPARE_CODE(flag&GAME_HOUR_EQUAL,now->content.Hours,model.Hours,GAME_IGNOREHOUR,GAME_HOUR_MORE,GAME_HOUR_LESS,GAME_HOUR_EQUAL)
+        INT_COMPARE_CODE(flag&GAME_TOTACHIEVE_EQUAL,now->content.TotAchieve,model.TotAchieve,GAME_IGNORETOTACHIEVE,GAME_TOTACHIEVE_MORE,GAME_TOTACHIEVE_LESS,GAME_TOTACHIEVE_EQUAL)
+        INT_COMPARE_CODE(flag&GAME_MYACHIEVE_EQUAL,now->content.MyAchieve,model.MyAchieve,GAME_IGNOREMYACHIEVE,GAME_MYACHIEVE_MORE,GAME_MYACHIEVE_LESS,GAME_MYACHIEVE_EQUAL)
         return(now);
     }
     return(0);
@@ -647,76 +508,11 @@ T_Game* FindGame_c(int flag,struct Game model,T_Game *head)
     T_Game *he=head->comp->head,*now;
     for(now=head; now!=he; now=now->cnext)
     {
-        switch(flag&GAME_COMPARENAME_COMPLETELYMATCH)
-        {
-        case GAME_IGNORENAME:
-            break;
-        case GAME_COMPARENAME:
-            if(!compstr_WC(now->content.Name,model.Name)) continue;
-            break;
-        case GAME_COMPARENAME_NOWILDCARD:
-            if(!compstr(now->content.Name,model.Name)) continue;
-            break;
-        case GAME_COMPARENAME_COMPLETELYMATCH:
-            if(strcmp(now->content.Name,model.Name)!=0) continue;
-            break;
-        }
-        switch(flag&GAME_COMPAREDESC_COMPLETELYMATCH)
-        {
-        case GAME_IGNOREDESC:
-            break;
-        case GAME_COMPAREDESC:
-            if(!compstr_WC(now->content.Description,model.Description)) continue;
-            break;
-        case GAME_COMPAREDESC_NOWILDCARD:
-            if(!compstr(now->content.Description,model.Description)) continue;
-            break;
-        case GAME_COMPAREDESC_COMPLETELYMATCH:
-            if(strcmp(now->content.Description,model.Description)!=0) continue;
-            break;
-        }
-        switch(flag&GAME_HOUR_EQUAL)
-        {
-        case GAME_IGNOREHOUR:
-            break;
-        case GAME_HOUR_MORE:
-            if(now->content.Hours<model.Hours) continue;
-            break;
-        case GAME_HOUR_LESS:
-            if(now->content.Hours>model.Hours) continue;
-            break;
-        case GAME_HOUR_EQUAL:
-            if(now->content.Hours!=model.Hours) continue;
-            break;
-        }
-        switch(flag&GAME_TOTACHIEVE_EQUAL)
-        {
-        case GAME_IGNORETOTACHIEVE:
-            break;
-        case GAME_TOTACHIEVE_MORE:
-            if(now->content.TotAchieve<model.TotAchieve) continue;
-            break;
-        case GAME_TOTACHIEVE_LESS:
-            if(now->content.TotAchieve>model.TotAchieve) continue;
-            break;
-        case GAME_TOTACHIEVE_EQUAL:
-            if(now->content.TotAchieve!=model.TotAchieve) continue;
-            break;
-        }
-        switch(flag&GAME_MYACHIEVE_EQUAL)
-        {
-        case GAME_IGNOREMYACHIEVE:
-            break;
-        case GAME_MYACHIEVE_MORE:
-            if(now->content.MyAchieve<model.MyAchieve) continue;
-            break;
-        case GAME_MYACHIEVE_LESS:
-            if(now->content.MyAchieve>model.MyAchieve) continue;
-            break;
-        case GAME_MYACHIEVE_EQUAL:
-            if(now->content.MyAchieve!=model.MyAchieve) continue;
-            break;
-        }
+        STRING_COMPARE_CODE(flag&GAME_COMPARENAME_COMPLETELYMATCH,now->content.Name,model.Name,GAME_IGNORENAME,GAME_COMPARENAME,GAME_COMPARENAME_NOWILDCARD,GAME_COMPARENAME_COMPLETELYMATCH)
+        STRING_COMPARE_CODE(flag&GAME_COMPAREDESC_COMPLETELYMATCH,now->content.Description,model.Description,GAME_IGNOREDESC,GAME_COMPAREDESC,GAME_COMPAREDESC_NOWILDCARD,GAME_COMPAREDESC_COMPLETELYMATCH)
+        INT_COMPARE_CODE(flag&GAME_HOUR_EQUAL,now->content.Hours,model.Hours,GAME_IGNOREHOUR,GAME_HOUR_MORE,GAME_HOUR_LESS,GAME_HOUR_EQUAL)
+        INT_COMPARE_CODE(flag&GAME_TOTACHIEVE_EQUAL,now->content.TotAchieve,model.TotAchieve,GAME_IGNORETOTACHIEVE,GAME_TOTACHIEVE_MORE,GAME_TOTACHIEVE_LESS,GAME_TOTACHIEVE_EQUAL)
+        INT_COMPARE_CODE(flag&GAME_MYACHIEVE_EQUAL,now->content.MyAchieve,model.MyAchieve,GAME_IGNOREMYACHIEVE,GAME_MYACHIEVE_MORE,GAME_MYACHIEVE_LESS,GAME_MYACHIEVE_EQUAL)
         return(now);
     }
     return(0);
@@ -763,62 +559,10 @@ T_Comp* FindCompany(int flag,struct Company model,T_Comp *head)
     if(head->global==0) return(0);
     for(now=head; now!=head->global->chead; now=now->next)
     {
-        switch(flag&COMP_COMPARENAME_COMPLETELYMATCH)
-        {
-        case COMP_IGNORENAME:
-            break;
-        case COMP_COMPARENAME:
-            if(!compstr_WC(now->content.Name,model.Name)) continue;
-            break;
-        case COMP_COMPARENAME_NOWILDCARD:
-            if(!compstr(now->content.Name,model.Name)) continue;
-            break;
-        case COMP_COMPARENAME_COMPLETELYMATCH:
-            if(strcmp(now->content.Name,model.Name)!=0) continue;
-            break;
-        }
-        switch(flag&COMP_COMPAREDESC_COMPLETELYMATCH)
-        {
-        case COMP_IGNOREDESC:
-            break;
-        case COMP_COMPAREDESC:
-            if(!compstr_WC(now->content.Description,model.Description)) continue;
-            break;
-        case COMP_COMPAREDESC_NOWILDCARD:
-            if(!compstr(now->content.Description,model.Description)) continue;
-            break;
-        case COMP_COMPAREDESC_COMPLETELYMATCH:
-            if(strcmp(now->content.Description,model.Description)!=0) continue;
-            break;
-        }
-        switch(flag&COMP_TOTGAME_EQUAL)
-        {
-        case COMP_IGNORETOTGAME:
-            break;
-        case COMP_TOTGAME_MORE:
-            if(now->content.TotalGame<model.TotalGame) continue;
-            break;
-        case COMP_TOTGAME_LESS:
-            if(now->content.TotalGame>model.TotalGame) continue;
-            break;
-        case COMP_TOTGAME_EQUAL:
-            if(now->content.TotalGame!=model.TotalGame) continue;
-            break;
-        }
-        switch(flag&COMP_MATCHEDGAME_EQUAL)
-        {
-        case COMP_IGNOREMATCHEDGAME:
-            break;
-        case COMP_MATCHEDGAME_MORE:
-            if(now->content.MatchedGame<model.MatchedGame) continue;
-            break;
-        case COMP_MATCHEDGAME_LESS:
-            if(now->content.MatchedGame>model.MatchedGame) continue;
-            break;
-        case COMP_MATCHEDGAME_EQUAL:
-            if(now->content.MatchedGame!=model.MatchedGame) continue;
-            break;
-        }
+        STRING_COMPARE_CODE(flag&COMP_COMPARENAME_COMPLETELYMATCH,now->content.Name,model.Name,COMP_IGNORENAME,COMP_COMPARENAME,COMP_COMPARENAME_NOWILDCARD,COMP_COMPARENAME_COMPLETELYMATCH)
+        STRING_COMPARE_CODE(flag&COMP_COMPAREDESC_COMPLETELYMATCH,now->content.Description,model.Description,COMP_IGNOREDESC,COMP_COMPAREDESC,COMP_COMPAREDESC_NOWILDCARD,COMP_COMPAREDESC_COMPLETELYMATCH)
+        INT_COMPARE_CODE(flag&COMP_TOTGAME_EQUAL,now->content.TotalGame,model.TotalGame,COMP_IGNORETOTGAME,COMP_TOTGAME_MORE,COMP_TOTGAME_LESS,COMP_TOTGAME_EQUAL)
+        INT_COMPARE_CODE(flag&COMP_MATCHEDGAME_EQUAL,now->content.MatchedGame,model.MatchedGame,COMP_IGNOREMATCHEDGAME,COMP_MATCHEDGAME_MORE,COMP_MATCHEDGAME_LESS,COMP_MATCHEDGAME_EQUAL)
         return(now);
     }
     return(0);
